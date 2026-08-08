@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 聊天助手</title>
+
+  <!-- Markdown 渲染库 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- 代码高亮 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css" id="hljs-theme" />
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+
+  <!-- KaTeX 数学公式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- ============ 侧边栏 ============ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <button class="btn-new-chat" id="btnNewChat">
+          <span class="icon">＋</span>
+          新建对话
+        </button>
+      </div>
+      <div class="conversations" id="conversationsList">
+        <!-- 会话列表由 JS 渲染 -->
+      </div>
+      <div class="sidebar-footer">
+        <button class="icon-btn" id="btnToggleTheme" title="切换明暗主题">🌙</button>
+      </div>
+    </aside>
+
+    <!-- ============ 主区域 ============ -->
+    <main class="main">
+      <!-- 顶部工具栏 -->
+      <header class="topbar">
+        <button class="icon-btn" id="btnToggleSidebar" title="折叠侧边栏">☰</button>
+        <div class="topbar-title" id="topbarTitle">AI 聊天助手</div>
+        <button class="icon-btn" id="btnSettings" title="设置">⚙</button>
+      </header>
+
+      <!-- 消息区 -->
+      <div class="messages" id="messages">
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">💬</div>
+          <h2>开始与 AI 对话</h2>
+          <p>在下方输入框输入你的问题,AI 会实时回复你。</p>
+          <div class="suggestions" id="suggestions">
+            <button class="suggestion-card" data-prompt="用通俗易懂的方式解释什么是量子纠缠">⚡ 解释量子纠缠</button>
+            <button class="suggestion-card" data-prompt="写一个 Python 冒泡排序,并解释原理">🐍 写个排序算法</button>
+            <button class="suggestion-card" data-prompt="帮我写一封请假的电子邮件,理由是身体不适">✉️ 写请假邮件</button>
+            <button class="suggestion-card" data-prompt="推荐三本适合初学者的编程入门书籍">📚 推荐编程书</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 输入区 -->
+      <footer class="input-area">
+        <div class="input-row">
+          <textarea
+            id="input"
+            class="input"
+            placeholder="输入消息… (Enter 发送, Shift+Enter 换行)"
+            rows="1"
+          ></textarea>
+          <button class="btn-send" id="btnSend" title="发送">
+            <span class="send-icon">↑</span>
+          </button>
+          <button class="btn-stop" id="btnStop" title="停止生成" hidden>⏹</button>
+        </div>
+        <div class="input-footer">
+          <span class="model-display" id="modelDisplay">模型: gpt-4o-mini</span>
+          <span class="hint">AI 可能会出错,重要信息请核实。</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- ============ 设置弹窗 ============ -->
+  <div class="modal-overlay" id="settingsModal" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3>设置</h3>
+        <button class="icon-btn" id="btnCloseSettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="settingApiKey">API 密钥</label>
+          <div class="input-with-action">
+            <input type="password" id="settingApiKey" placeholder="sk-..." autocomplete="off" />
+            <button class="btn-small" id="btnTogglePwd" type="button">👁</button>
+          </div>
+          <small>密钥仅保存在你的浏览器本地,不会上传到任何服务器。</small>
+        </div>
+
+        <div class="form-group">
+          <label for="settingApiBase">API 接口地址</label>
+          <input type="text" id="settingApiBase" placeholder="https://api.openai.com/v1" />
+          <small>兼容 OpenAI 协议的接口均可。例如 DeepSeek、Moonshot 或本地 Ollama。</small>
+        </div>
+
+        <div class="form-group">
+          <label for="settingModel">模型</label>
+          <div class="input-with-action">
+            <input type="text" id="settingModel" list="modelList" />
+            <datalist id="modelList"></datalist>
+          </div>
+          <small>可从预设列表选择,也可手动输入模型名称。</small>
+        </div>
+
+        <div class="form-group">
+          <label for="settingTemperature">采样温度 (Temperature): <span id="tempValue">0.7</span></label>
+          <input type="range" id="settingTemperature" min="0" max="2" step="0.1" value="0.7" />
+        </div>
+
+        <div class="form-group">
+          <label for="settingMaxTokens">最大输出 Tokens</label>
+          <input type="number" id="settingMaxTokens" min="1" max="32768" value="2048" />
+        </div>
+
+        <div class="form-group">
+          <label for="settingSystemPrompt">系统提示词 (System Prompt)</label>
+          <textarea id="settingSystemPrompt" rows="4" placeholder="设定 AI 的角色和行为…"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" id="btnClearData" title="清除所有本地数据">🗑 清除全部数据</button>
+          <button class="btn-primary" id="btnSaveSettings">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 脚本 -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
