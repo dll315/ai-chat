@@ -16,20 +16,19 @@ const CONFIG = {
   // DeepSeek: https://api.deepseek.com/v1
   // Moonshot: https://api.moonshot.cn/v1
   // 本地 Ollama: http://localhost:11434/v1
-  DEFAULT_API_BASE: "https://api.openai.com/v1",
+  DEFAULT_API_BASE: "https://api.siliconflow.cn/v1",
 
   // ---- 预设模型列表(可在界面里自由切换 / 手动输入) ----
   MODELS: [
-    { id: "gpt-4o",            label: "GPT-4o" },
-    { id: "gpt-4o-mini",       label: "GPT-4o mini" },
-    { id: "gpt-4-turbo",       label: "GPT-4 Turbo" },
-    { id: "gpt-3.5-turbo",     label: "GPT-3.5 Turbo" },
-    { id: "deepseek-chat",     label: "DeepSeek Chat" },
-    { id: "deepseek-reasoner", label: "DeepSeek Reasoner" },
-    { id: "moonshot-v1-8k",    label: "Moonshot v1 8k" },
+    { id: "deepseek-ai/DeepSeek-V3",                  label: "DeepSeek V3" },
+    { id: "deepseek-ai/DeepSeek-R1",                  label: "DeepSeek R1" },
+    { id: "Qwen/Qwen2.5-72B-Instruct",                label: "Qwen2.5 72B" },
+    { id: "Qwen/Qwen2.5-7B-Instruct",                 label: "Qwen2.5 7B" },
+    { id: "meta-llama/Llama-3.3-70B-Instruct",        label: "Llama 3.3 70B" },
+    { id: "THUDM/glm-4-9b-chat",                      label: "GLM-4 9B" },
   ],
 
-  DEFAULT_MODEL: "gpt-4o-mini",
+  DEFAULT_MODEL: "deepseek-ai/DeepSeek-V3",
 
   // ---- 生成参数 ----
   DEFAULT_TEMPERATURE: 0.7,
@@ -38,6 +37,11 @@ const CONFIG = {
   // ---- 默认系统提示词 ----
   DEFAULT_SYSTEM_PROMPT:
     "你是一个乐于助人的 AI 助手。请用简洁、准确、友好的方式回答问题。",
+
+  // ---- 内置 API 密钥(部署时使用,用户可在设置中覆盖) ----
+  // ⚠️ 警告: 此密钥在前端代码中公开可见, 任何人都可通过浏览器开发者工具查看。
+  // 仅适合个人使用或额度较小场景。生产环境请使用后端代理。
+  EMBEDDED_API_KEY: "sk-hhfnqnzivabickucybsnmuvirwsgwqienchlubuweqxkyuoa",
 
   // ---- 本地存储键名 ----
   STORAGE_KEYS: {

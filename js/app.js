@@ -602,7 +602,7 @@
     renderMessages();
     $("input").focus();
 
-    // 首次使用提示
+    // 首次使用提示: 仅当既没有内置密钥、用户也没填密钥时才提示
     if (!ChatAPI.getApiKey()) {
       setTimeout(() => {
         toast("欢迎使用!请点击右上角 ⚙ 设置 API 密钥", "success");

@@ -12,8 +12,19 @@ const ChatAPI = (function () {
   const K = CONFIG.STORAGE_KEYS;
 
   /* ---------- 读取配置 ---------- */
-  function getApiKey()   { return localStorage.getItem(K.API_KEY) || ""; }
-  function getApiBase()  { return localStorage.getItem(K.API_BASE) || CONFIG.DEFAULT_API_BASE; }
+  function getApiKey() {
+    // 优先使用用户在设置中填写的密钥
+    const userKey = localStorage.getItem(K.API_KEY);
+    if (userKey && userKey.trim()) return userKey.trim();
+    // 未填写则使用内置密钥(若有)
+    if (CONFIG.EMBEDDED_API_KEY) return CONFIG.EMBEDDED_API_KEY;
+    return "";
+  }
+  function getApiBase() {
+    const userBase = localStorage.getItem(K.API_BASE);
+    if (userBase && userBase.trim()) return userBase.trim();
+    return CONFIG.DEFAULT_API_BASE;
+  }
   function getModel()    { return localStorage.getItem(K.MODEL)   || CONFIG.DEFAULT_MODEL; }
   function getTemperature() {
     return parseFloat(localStorage.getItem(K.TEMPERATURE)) || CONFIG.DEFAULT_TEMPERATURE;
